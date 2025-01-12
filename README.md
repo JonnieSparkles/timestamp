@@ -27,7 +27,7 @@ The current Unix timestamp is displayed at the top of the page and updates every
 
 ## Installation
 
-Simply download the `timestamp.html` file and open it in any modern web browser. No additional dependencies or installation required.
+Simply download the `timestamp.html` file and open it in any modern web browser. No additional dependencies or installation required - wild!
 
 ## Technical Details
 
