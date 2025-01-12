@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unix Timestamp Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input, button, select {
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007BFF;
+            color: #fff;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .current-time {
+            margin-bottom: 20px;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.8em;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Unix Timestamp Converter</h1>
+        
+        <div class="current-time">
+            <h2>Current Unix Timestamp</h2>
+            <p id="currentUnix"></p>
+        </div>
+        
+        <h2>Time/Date to Unix</h2>
+        <input type="datetime-local" step="1" id="datetime" />
+        <select id="timezone">
+            <option value="local">Local Time</option>
+            <option value="utc">UTC Time</option>
+        </select>
+        <button onclick="convertToUnix()">Convert</button>
+        <p id="result"></p>
+
+        <h2>Unix to Time/Date</h2>
+        <input type="number" id="timestamp" placeholder="Enter Unix Timestamp" />
+        <select id="convertToTimezone">
+            <option value="local">Local Time</option>
+            <option value="utc">UTC Time</option>
+        </select>
+        <button onclick="convertToDateTime()">Convert</button>
+        <p id="dateTimeResult"></p>
+        
+        <div class="footer">
+            by @JonnieSparkles and ChatGPT
+        </div>
+    </div>
+
+    <script>
+        function updateCurrentUnix() {
+            const now = new Date();
+            const currentUnix = Math.floor(now.getTime() / 1000);
+            document.getElementById('currentUnix').innerText = `${currentUnix}`;
+        }
+
+        function convertToUnix() {
+            const datetime = document.getElementById('datetime').value;
+            const timezone = document.getElementById('timezone').value;
+            if (datetime) {
+                let unixTimestamp;
+                if (timezone === 'local') {
+                    unixTimestamp = Math.floor(new Date(datetime).getTime() / 1000);
+                } else {
+                    const localDate = new Date(datetime);
+                    const offset = localDate.getTimezoneOffset() * 60;
+                    unixTimestamp = Math.floor(localDate.getTime() / 1000) - offset;
+                }
+                document.getElementById('result').innerText = 'Unix Timestamp: ' + unixTimestamp;
+            } else {
+                document.getElementById('result').innerText = 'Please select a date and time.';
+            }
+        }
+
+        function convertToDateTime() {
+            const timestamp = document.getElementById('timestamp').value;
+            const convertToTimezone = document.getElementById('convertToTimezone').value;
+            if (timestamp) {
+                let date;
+                if (convertToTimezone === 'utc') {
+                    date = new Date(timestamp * 1000);
+                    const year = date.getUTCFullYear();
+                    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+                    const day = String(date.getUTCDate()).padStart(2, '0');
+                    const hours = String(date.getUTCHours()).padStart(2, '0');
+                    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+                    const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+                    const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+                    document.getElementById('dateTimeResult').innerText = 'Date/Time (UTC): ' + formattedDate;
+                } else {
+                    date = new Date(timestamp * 1000);
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const hours = String(date.getHours()).padStart(2, '0');
+                    const minutes = String(date.getMinutes()).padStart(2, '0');
+                    const seconds = String(date.getSeconds()).padStart(2, '0');
+                    const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+                    document.getElementById('dateTimeResult').innerText = 'Date/Time (Local): ' + formattedDate;
+                }
+            } else {
+                document.getElementById('dateTimeResult').innerText = 'Please enter a Unix timestamp.';
+            }
+        }
+
+        setInterval(updateCurrentUnix, 1000);
+    </script>
+</body>
+</html>
