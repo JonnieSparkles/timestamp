@@ -150,9 +150,16 @@
 
         .copy-btn {
             margin-left: 10px;
-            padding: 5px 10px;
+            padding: 5px 8px;
             font-size: 14px;
             width: auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .copy-btn .icon {
+            margin-right: 0;
         }
 
         .theme-switcher {
@@ -288,6 +295,13 @@
                 padding: 10px;
             }
         }
+
+        /* Icon styles */
+        .icon {
+            font-size: 14px;
+            display: inline-block;
+            line-height: 1;
+        }
     </style>
 </head>
 <body>
@@ -335,7 +349,7 @@
         </div>
         
         <div class="footer">
-            v2 by @JonnieSparkles
+            v2.1.0 by @JonnieSparkles
         </div>
     </div>
 
@@ -492,7 +506,7 @@
                  */
                 updateCurrentUnix: function() {
                     const currentUnix = timestampUtils.getCurrentUnixTimestamp();
-                    elements.currentUnix.innerHTML = `${currentUnix} <button class="copy-btn" onclick="navigator.clipboard.writeText('${currentUnix}')">Copy</button>`;
+                    elements.currentUnix.innerHTML = `${currentUnix} <button class="copy-btn" onclick="navigator.clipboard.writeText('${currentUnix}')"><span class="icon">📋</span></button>`;
                 },
                 
                 /**
@@ -511,7 +525,7 @@
                         const unixTimestamp = timestampUtils.dateToUnix(datetime, timezone);
                         this.showResult(
                             elements.unixResult, 
-                            `Unix Timestamp: ${unixTimestamp} <button class="copy-btn" onclick="navigator.clipboard.writeText('${unixTimestamp}')">Copy</button>`
+                            `Unix Timestamp: ${unixTimestamp} <button class="copy-btn" onclick="navigator.clipboard.writeText('${unixTimestamp}')"><span class="icon">📋</span></button>`
                         );
                     } catch (error) {
                         this.showResult(elements.unixResult, 'Error converting date/time. Please try again.', true);
@@ -540,13 +554,14 @@
 
                         let warning = '';
                         if (timestampUtils.mightBeMilliseconds(timestampNum)) {
-                            warning = `<br><span style="color: var(--error-color);">Note: This date is far in the future. Did you enter milliseconds instead of seconds? If so, try: ${Math.floor(timestampNum / 1000)}</span>`;
+                            const suggestedTimestamp = Math.floor(timestampNum / 1000);
+                            warning = `<br><span style="color: var(--error-color);">Note: This date is far in the future. Did you enter milliseconds instead of seconds? If so, try: ${suggestedTimestamp} <button class="copy-btn" onclick="navigator.clipboard.writeText('${suggestedTimestamp}')"><span class="icon">📋</span></button></span>`;
                         }
 
                         const formattedDate = timestampUtils.formatDate(date, convertToTimezone === 'utc');
                         this.showResult(
                             elements.dateTimeResult, 
-                            `Date/Time (${convertToTimezone.toUpperCase()}): ${formattedDate} <button class="copy-btn" onclick="navigator.clipboard.writeText('${formattedDate}')">Copy</button>${warning}`
+                            `Date/Time (${convertToTimezone.toUpperCase()}): ${formattedDate} <button class="copy-btn" onclick="navigator.clipboard.writeText('${formattedDate}')"><span class="icon">📋</span></button>${warning}`
                         );
                     } catch (error) {
                         this.showResult(elements.dateTimeResult, 'Invalid Unix timestamp. Please try again.', true);
