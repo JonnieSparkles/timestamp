@@ -6,7 +6,7 @@ A simple, browser-based tool for converting between Unix timestamps and human-re
 
 - Real-time display of current Unix timestamp with copy functionality
 - Convert date/time to Unix timestamp
-- Convert Unix timestamp to date/time
+- Convert Unix tsimestamp to date/time
 - Support for both local and UTC timezone conversions
 - Light, dark, and system theme options
 - Intelligent detection of millisecond vs. second timestamps
