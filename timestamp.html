@@ -3,137 +3,626 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta property="og:title" content="Unix Timestamp Converter" />
+    <meta property="og:description" content="Convert between Unix timestamps and readable dates." />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Unix Timestamp Converter" />
+    <meta name="twitter:description" content="Convert between Unix timestamps and readable dates." />
+
     <title>Unix Timestamp Converter</title>
     <style>
+        :root {
+            --primary-color: #007BFF;
+            --primary-hover: #0056b3;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --border-color: #ccc;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --bg-color: #f0f0f0;
+            --container-bg: #fff;
+            --text-color: #333;
+            --section-bg: #f8f9fa;
+            --footer-color: #888;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root.system-theme {
+                --primary-color: #0d6efd;
+                --primary-hover: #0b5ed7;
+                --success-color: #28a745;
+                --error-color: #dc3545;
+                --border-color: #444;
+                --shadow-color: rgba(0, 0, 0, 0.3);
+                --bg-color: #222;
+                --container-bg: #333;
+                --text-color: #f0f0f0;
+                --section-bg: #3a3a3a;
+                --footer-color: #aaa;
+            }
+        }
+
+        :root.dark-theme {
+            --primary-color: #0d6efd;
+            --primary-hover: #0b5ed7;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --border-color: #444;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --bg-color: #222;
+            --container-bg: #333;
+            --text-color: #f0f0f0;
+            --section-bg: #3a3a3a;
+            --footer-color: #aaa;
+        }
+
         body {
             font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            background-color: #f0f0f0;
-        }
-        .container {
-            background-color: #fff;
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            margin: 0;
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
+
+        .container {
+            background-color: var(--container-bg);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px var(--shadow-color);
+            max-width: 600px;
+            width: 100%;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
         input, button, select {
             margin: 10px 0;
-            padding: 10px;
+            padding: 12px;
             width: 100%;
-            border: 1px solid #ccc;
+            border: 1px solid var(--border-color);
             border-radius: 5px;
+            font-size: 16px;
+            background-color: var(--container-bg);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease, border 0.3s ease;
         }
+
         button {
-            background-color: #007BFF;
+            background-color: var(--primary-color);
             color: #fff;
             cursor: pointer;
+            transition: background-color 0.3s ease;
         }
+
         button:hover {
-            background-color: #0056b3;
+            background-color: var(--primary-hover);
         }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
         .current-time {
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: var(--section-bg);
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
         }
+
+        .result-container {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: var(--section-bg);
+            transition: background-color 0.3s ease;
+        }
+
+        .result-container.success {
+            background-color: rgba(40, 167, 69, 0.2);
+            color: var(--text-color);
+            border: 1px solid var(--success-color);
+        }
+
+        .result-container.error {
+            background-color: rgba(220, 53, 69, 0.2);
+            color: var(--text-color);
+            border: 1px solid var(--error-color);
+        }
+
+        .copy-btn {
+            margin-left: 10px;
+            padding: 5px 10px;
+            font-size: 14px;
+            width: auto;
+        }
+
+        .theme-switcher {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .theme-btn {
+            padding: 8px;
+            font-size: 18px;
+            width: 36px;
+            height: 36px;
+            background-color: var(--section-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
         .footer {
-            margin-top: 20px;
+            margin-top: 30px;
             text-align: center;
             font-size: 0.8em;
-            color: #888;
+            color: var(--footer-color);
+        }
+
+        .info-box {
+            background-color: rgba(0, 123, 255, 0.1);
+            border: 1px solid var(--primary-color);
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            font-size: 0.9em;
+        }
+
+        .info-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 14px;
+            margin-left: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .info-badge:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .about-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .about-header h2 {
+            margin: 0;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--container-bg);
+            border-radius: 8px;
+            max-width: 600px;
+            width: 90%;
+            padding: 20px;
+            box-shadow: 0 4px 20px var(--shadow-color);
+            position: relative;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-color);
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+        }
+
+        .modal-close:hover {
+            opacity: 1;
+        }
+
+        .modal-title {
+            margin-top: 0;
+            padding-right: 30px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            
+            input, button, select {
+                padding: 10px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="theme-switcher">
+            <button class="theme-btn" id="light-theme" aria-label="Switch to light theme">☀️</button>
+            <button class="theme-btn" id="dark-theme" aria-label="Switch to dark theme">🌙</button>
+            <button class="theme-btn" id="system-theme" aria-label="Use system theme">💻</button>
+        </div>
+
         <h1>Unix Timestamp Converter</h1>
         
-        <div class="current-time">
+        <div class="section current-time">
             <h2>Current Unix Timestamp</h2>
             <p id="currentUnix"></p>
         </div>
         
-        <h2>Time/Date to Unix</h2>
-        <input type="datetime-local" step="1" id="datetime" />
-        <select id="timezone">
-            <option value="local">Local Time</option>
-            <option value="utc">UTC Time</option>
-        </select>
-        <button onclick="convertToUnix()">Convert</button>
-        <p id="result"></p>
+        <div class="section">
+            <h2>Time/Date to Unix</h2>
+            <input type="datetime-local" step="1" id="datetime" aria-label="Select date and time" />
+            <select id="timezone" aria-label="Select timezone">
+                <option value="local">Local Time</option>
+                <option value="utc">UTC Time</option>
+            </select>
+            <button id="convert-to-unix-btn" aria-label="Convert to Unix timestamp">Convert</button>
+            <div id="result" class="result-container"></div>
+        </div>
 
-        <h2>Unix to Time/Date</h2>
-        <input type="number" id="timestamp" placeholder="Enter Unix Timestamp" />
-        <select id="convertToTimezone">
-            <option value="local">Local Time</option>
-            <option value="utc">UTC Time</option>
-        </select>
-        <button onclick="convertToDateTime()">Convert</button>
-        <p id="dateTimeResult"></p>
+        <div class="section">
+            <h2>Unix to Time/Date</h2>
+            <input type="number" id="timestamp" placeholder="Enter Unix Timestamp (seconds)" aria-label="Enter Unix timestamp" />
+            <select id="convertToTimezone" aria-label="Select output timezone">
+                <option value="local">Local Time</option>
+                <option value="utc">UTC Time</option>
+            </select>
+            <button id="convert-to-date-btn" aria-label="Convert to date and time">Convert</button>
+            <div id="dateTimeResult" class="result-container"></div>
+        </div>
+        
+        <div class="section">
+            <div class="about-header">
+                <h2>About Unix Timestamps</h2>
+                <span class="info-badge" id="info-button" title="Information about Unix timestamps">i</span>
+            </div>
+        </div>
         
         <div class="footer">
-            by @JonnieSparkles and ChatGPT
+            v2 by @JonnieSparkles
+        </div>
+    </div>
+
+    <!-- Modal Dialog -->
+    <div id="info-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" id="modal-close">&times;</span>
+            <h3 class="modal-title">About Unix Timestamps</h3>
+            <div class="info-box">
+                <p><strong>The Year 2038 Problem:</strong> On January 19, 2038, at 03:14:07 UTC, 32-bit systems using Unix time will experience an integer overflow. 
+                This timestamp converter uses JavaScript's Date object which handles dates beyond 2038, but be aware that some systems may interpret timestamps differently.</p>
+                <p>For maximum compatibility with all systems:</p>
+                <ul>
+                    <li>Be cautious with timestamps near or beyond January 19, 2038 (2147483647)</li>
+                    <li>For dates beyond 2038, ensure your target systems use 64-bit time representation</li>
+                </ul>
+            </div>
         </div>
     </div>
 
     <script>
-        function updateCurrentUnix() {
-            const now = new Date();
-            const currentUnix = Math.floor(now.getTime() / 1000);
-            document.getElementById('currentUnix').innerText = `${currentUnix}`;
-        }
+        /**
+         * Unix Timestamp Converter
+         * A self-contained module for converting between Unix timestamps and readable dates
+         */
+        (function() {
+            // Cache DOM elements
+            const elements = {
+                // Theme elements
+                themeButtons: {
+                    light: document.getElementById('light-theme'),
+                    dark: document.getElementById('dark-theme'),
+                    system: document.getElementById('system-theme')
+                },
+                // Current time elements
+                currentUnix: document.getElementById('currentUnix'),
+                // Time to Unix elements
+                datetimeInput: document.getElementById('datetime'),
+                timezoneSelect: document.getElementById('timezone'),
+                convertToUnixBtn: document.getElementById('convert-to-unix-btn'),
+                unixResult: document.getElementById('result'),
+                // Unix to Time elements
+                timestampInput: document.getElementById('timestamp'),
+                convertToTimezoneSelect: document.getElementById('convertToTimezone'),
+                convertToDateBtn: document.getElementById('convert-to-date-btn'),
+                dateTimeResult: document.getElementById('dateTimeResult')
+            };
 
-        function convertToUnix() {
-            const datetime = document.getElementById('datetime').value;
-            const timezone = document.getElementById('timezone').value;
-            if (datetime) {
-                let unixTimestamp;
-                if (timezone === 'local') {
-                    unixTimestamp = Math.floor(new Date(datetime).getTime() / 1000);
-                } else {
-                    const localDate = new Date(datetime);
-                    const offset = localDate.getTimezoneOffset() * 60;
-                    unixTimestamp = Math.floor(localDate.getTime() / 1000) - offset;
+            // ====== THEME HANDLING ======
+            const themeHandler = {
+                /**
+                 * Set the active theme
+                 * @param {string} theme - 'light', 'dark', or 'system'
+                 */
+                setTheme: function(theme) {
+                    const root = document.documentElement;
+                    root.classList.remove('light-theme', 'dark-theme', 'system-theme');
+                    root.classList.add(theme + '-theme');
+                    
+                    // Save preference to localStorage
+                    localStorage.setItem('theme', theme);
+                    
+                    // Update buttons
+                    Object.values(elements.themeButtons).forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    elements.themeButtons[theme].classList.add('active');
+                },
+                
+                /**
+                 * Initialize theme handling
+                 */
+                init: function() {
+                    // Set initial theme from localStorage or default to system
+                    const savedTheme = localStorage.getItem('theme') || 'system';
+                    this.setTheme(savedTheme);
+                    
+                    // Set up event listeners
+                    elements.themeButtons.light.addEventListener('click', () => this.setTheme('light'));
+                    elements.themeButtons.dark.addEventListener('click', () => this.setTheme('dark'));
+                    elements.themeButtons.system.addEventListener('click', () => this.setTheme('system'));
                 }
-                document.getElementById('result').innerText = 'Unix Timestamp: ' + unixTimestamp;
-            } else {
-                document.getElementById('result').innerText = 'Please select a date and time.';
-            }
-        }
+            };
 
-        function convertToDateTime() {
-            const timestamp = document.getElementById('timestamp').value;
-            const convertToTimezone = document.getElementById('convertToTimezone').value;
-            if (timestamp) {
-                let date;
-                if (convertToTimezone === 'utc') {
-                    date = new Date(timestamp * 1000);
-                    const year = date.getUTCFullYear();
-                    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-                    const day = String(date.getUTCDate()).padStart(2, '0');
-                    const hours = String(date.getUTCHours()).padStart(2, '0');
-                    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-                    const seconds = String(date.getUTCSeconds()).padStart(2, '0');
-                    const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-                    document.getElementById('dateTimeResult').innerText = 'Date/Time (UTC): ' + formattedDate;
-                } else {
-                    date = new Date(timestamp * 1000);
-                    const year = date.getFullYear();
-                    const month = String(date.getMonth() + 1).padStart(2, '0');
-                    const day = String(date.getDate()).padStart(2, '0');
-                    const hours = String(date.getHours()).padStart(2, '0');
-                    const minutes = String(date.getMinutes()).padStart(2, '0');
-                    const seconds = String(date.getSeconds()).padStart(2, '0');
-                    const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-                    document.getElementById('dateTimeResult').innerText = 'Date/Time (Local): ' + formattedDate;
+            // ====== TIMESTAMP UTILITIES ======
+            const timestampUtils = {
+                /**
+                 * Format a date object to string
+                 * @param {Date} date - Date object to format
+                 * @param {boolean} isUTC - Whether to use UTC time
+                 * @returns {string} Formatted date string
+                 */
+                formatDate: function(date, isUTC) {
+                    const year = isUTC ? date.getUTCFullYear() : date.getFullYear();
+                    const month = String((isUTC ? date.getUTCMonth() : date.getMonth()) + 1).padStart(2, '0');
+                    const day = String(isUTC ? date.getUTCDate() : date.getDate()).padStart(2, '0');
+                    const hours = String(isUTC ? date.getUTCHours() : date.getHours()).padStart(2, '0');
+                    const minutes = String(isUTC ? date.getUTCMinutes() : date.getMinutes()).padStart(2, '0');
+                    const seconds = String(isUTC ? date.getUTCSeconds() : date.getSeconds()).padStart(2, '0');
+                    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+                },
+                
+                /**
+                 * Get current Unix timestamp in seconds
+                 * @returns {number} Current Unix timestamp
+                 */
+                getCurrentUnixTimestamp: function() {
+                    return Math.floor(new Date().getTime() / 1000);
+                },
+                
+                /**
+                 * Convert datetime to Unix timestamp
+                 * @param {string} datetime - Datetime string from input
+                 * @param {string} timezone - 'local' or 'utc'
+                 * @returns {number} Unix timestamp in seconds
+                 */
+                dateToUnix: function(datetime, timezone) {
+                    if (timezone === 'local') {
+                        return Math.floor(new Date(datetime).getTime() / 1000);
+                    } else {
+                        const localDate = new Date(datetime);
+                        const offset = localDate.getTimezoneOffset() * 60;
+                        return Math.floor(localDate.getTime() / 1000) - offset;
+                    }
+                },
+                
+                /**
+                 * Check if a timestamp might be in milliseconds
+                 * @param {number} timestamp - Timestamp to check
+                 * @returns {boolean} True if the timestamp might be in milliseconds
+                 */
+                mightBeMilliseconds: function(timestamp) {
+                    const date = new Date(timestamp * 1000);
+                    const currentYear = new Date().getFullYear();
+                    return date.getFullYear() > currentYear + 100;
                 }
-            } else {
-                document.getElementById('dateTimeResult').innerText = 'Please enter a Unix timestamp.';
-            }
-        }
+            };
 
-        setInterval(updateCurrentUnix, 1000);
+            // ====== UI HANDLER ======
+            const uiHandler = {
+                /**
+                 * Show result with optional error styling
+                 * @param {HTMLElement} element - Result container element
+                 * @param {string} message - Message to display
+                 * @param {boolean} isError - Whether to show as error
+                 */
+                showResult: function(element, message, isError = false) {
+                    element.innerHTML = message;
+                    element.className = `result-container ${isError ? 'error' : 'success'}`;
+                },
+                
+                /**
+                 * Update current Unix timestamp display
+                 */
+                updateCurrentUnix: function() {
+                    const currentUnix = timestampUtils.getCurrentUnixTimestamp();
+                    elements.currentUnix.innerHTML = `${currentUnix} <button class="copy-btn" onclick="navigator.clipboard.writeText('${currentUnix}')">Copy</button>`;
+                },
+                
+                /**
+                 * Handle conversion from datetime to Unix
+                 */
+                handleDateToUnix: function() {
+                    const datetime = elements.datetimeInput.value;
+                    const timezone = elements.timezoneSelect.value;
+                    
+                    if (!datetime) {
+                        this.showResult(elements.unixResult, 'Please select a date and time.', true);
+                        return;
+                    }
+
+                    try {
+                        const unixTimestamp = timestampUtils.dateToUnix(datetime, timezone);
+                        this.showResult(
+                            elements.unixResult, 
+                            `Unix Timestamp: ${unixTimestamp} <button class="copy-btn" onclick="navigator.clipboard.writeText('${unixTimestamp}')">Copy</button>`
+                        );
+                    } catch (error) {
+                        this.showResult(elements.unixResult, 'Error converting date/time. Please try again.', true);
+                    }
+                },
+                
+                /**
+                 * Handle conversion from Unix to datetime
+                 */
+                handleUnixToDate: function() {
+                    const timestamp = elements.timestampInput.value;
+                    const convertToTimezone = elements.convertToTimezoneSelect.value;
+                    
+                    if (!timestamp) {
+                        this.showResult(elements.dateTimeResult, 'Please enter a Unix timestamp.', true);
+                        return;
+                    }
+
+                    try {
+                        const timestampNum = Number(timestamp);
+                        const date = new Date(timestampNum * 1000);
+                        
+                        if (isNaN(date.getTime())) {
+                            throw new Error('Invalid timestamp');
+                        }
+
+                        let warning = '';
+                        if (timestampUtils.mightBeMilliseconds(timestampNum)) {
+                            warning = `<br><span style="color: var(--error-color);">Note: This date is far in the future. Did you enter milliseconds instead of seconds? If so, try: ${Math.floor(timestampNum / 1000)}</span>`;
+                        }
+
+                        const formattedDate = timestampUtils.formatDate(date, convertToTimezone === 'utc');
+                        this.showResult(
+                            elements.dateTimeResult, 
+                            `Date/Time (${convertToTimezone.toUpperCase()}): ${formattedDate} <button class="copy-btn" onclick="navigator.clipboard.writeText('${formattedDate}')">Copy</button>${warning}`
+                        );
+                    } catch (error) {
+                        this.showResult(elements.dateTimeResult, 'Invalid Unix timestamp. Please try again.', true);
+                    }
+                },
+                
+                /**
+                 * Initialize UI event listeners and timers
+                 */
+                init: function() {
+                    // Set up timers
+                    this.updateCurrentUnix(); // Initial call
+                    setInterval(() => this.updateCurrentUnix(), 1000);
+                    
+                    // Set up event listeners
+                    elements.convertToUnixBtn.addEventListener('click', () => this.handleDateToUnix());
+                    elements.convertToDateBtn.addEventListener('click', () => this.handleUnixToDate());
+                    
+                    // Add keyboard support (Enter key)
+                    elements.datetimeInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') this.handleDateToUnix();
+                    });
+                    elements.timestampInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') this.handleUnixToDate();
+                    });
+                }
+            };
+
+            // Modal handling
+            const modalHandler = {
+                init: function() {
+                    // Get modal elements
+                    const modal = document.getElementById('info-modal');
+                    const infoButton = document.getElementById('info-button');
+                    const closeButton = document.getElementById('modal-close');
+                    
+                    // Show modal when info button is clicked
+                    infoButton.addEventListener('click', () => {
+                        modal.classList.add('show');
+                    });
+                    
+                    // Hide modal when close button is clicked
+                    closeButton.addEventListener('click', () => {
+                        modal.classList.remove('show');
+                    });
+                    
+                    // Hide modal when clicking outside content
+                    modal.addEventListener('click', (e) => {
+                        if (e.target === modal) {
+                            modal.classList.remove('show');
+                        }
+                    });
+                    
+                    // Close modal with Escape key
+                    document.addEventListener('keydown', (e) => {
+                        if (e.key === 'Escape' && modal.classList.contains('show')) {
+                            modal.classList.remove('show');
+                        }
+                    });
+                }
+            };
+
+            // Initialize all modules
+            function init() {
+                themeHandler.init();
+                uiHandler.init();
+                modalHandler.init();
+            }
+
+            // Initialize when DOM is ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        })();
     </script>
 </body>
 </html>
